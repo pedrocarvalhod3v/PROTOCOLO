@@ -29,11 +29,11 @@ Para simular um ambiente profissional e garantir profundidade acadêmica, os 5 m
 
 ```mermaid
 graph TD
-    M1["Integrante 1<br/><b>Gerente de Projetos & PO</b><br/><i>Requisitos de Negócio, Escopo, Riscos, RACI</i>"]
-    M2["Integrante 2<br/><b>Tech Lead & Arquiteto</b><br/><i>Modelo C4, ADRs, Modelo de Dados, NFRs</i>"]
-    M3["Integrante 3<br/><b>Backend: Ingestão & Dados</b><br/><i>API PNCP, Scraping, Normalização, Resiliência</i>"]
-    M4["Integrante 4<br/><b>Backend: Domínio & Negócio</b><br/><i>CAT, Regras de Negócio, SRS/Gherkin, APIs Internas</i>"]
-    M5["Integrante 5<br/><b>Frontend, QA & DevOps</b><br/><i>UX/UI, Plano de Testes, CI/CD, Observabilidade</i>"]
+    M1["Júlio Braga<br/><b>Gerente de Projetos & PO</b><br/><i>Requisitos de Negócio, Escopo, Riscos, RACI</i>"]
+    M2["Pedro Carvalho<br/><b>Tech Lead & Arquiteto</b><br/><i>Modelo C4, ADRs, Modelo de Dados, NFRs</i>"]
+    M3["Rafael<br/><b>Backend: Ingestão & Dados</b><br/><i>API PNCP, Scraping, Normalização, Resiliência</i>"]
+    M4["Matheus<br/><b>Backend: Domínio & Negócio</b><br/><i>CAT, Regras de Negócio, SRS/Gherkin, APIs Internas</i>"]
+    M5["Ryan Vitor<br/><b>Frontend, QA & DevOps</b><br/><i>UX/UI, Plano de Testes, CI/CD, Observabilidade</i>"]
 
     M1 --- M2
     M2 --- M3
