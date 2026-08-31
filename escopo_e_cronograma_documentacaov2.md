@@ -1,13 +1,10 @@
-# PROTOCOLO — Planejamento de Escopo e Cronograma de Documentação de Software (Projeto Acadêmico)
-
----
+# PROTOCOLO — Planejamento de Escopo e Cronograma de Documentação de Software 
 
 ## 1. Visão Geral e Contexto Acadêmico
 
 ### 1.1 Identificação do Projeto
-- **Nome do Projeto:** PROTOCOLO — Plataforma de Gestão e Monitoramento de Licitações e Habilitação Técnica
-- **Natureza:** Projeto Acadêmico de Engenharia de Software / Trabalho de Conclusão / Projeto Integrador
-- **Duração:** 16 Semanas (1 Semestre Letivo / 8 Sprints quinzenais)
+- **Nome do Projeto:** PROTOCOLO — Plataforma de Monitoramento de Licitações e Habilitação Técnica
+- **Duração:** 16 Semanas (8 Sprints quinzenais)
 - **Tamanho da Equipe:** 5 Integrantes
 
 ### 1.2 Problema Central e Justificativa

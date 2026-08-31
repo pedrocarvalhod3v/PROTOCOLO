@@ -1,0 +1,100 @@
+================================================================================
+PROJETO PROTOCOLO — RESUMO DE STATUS E ALINHAMENTO DA EQUIPE
+Data de Atualização: 31/08/2026
+Objetivo: Atualização geral dos membros do projeto acadêmico de 5 integrantes
+================================================================================
+
+1. VISÃO GERAL DO PRODUTO E PROBLEMA
+--------------------------------------------------------------------------------
+O PROTOCOLO é uma plataforma de monitoramento de licitações públicas e gestão de
+habilitação técnica voltada para construtoras de pequeno e médio porte (escolas,
+hospitais, praças, reformas, infraestrutura urbana e viária).
+
+Principais dores validadas na entrevista real com o usuário do setor:
+- Fragmentação: Existem ~30 portais; gasta-se ~R$ 1.500/mês para monitorar 7.
+- Tempo perdido: Pelo menos 2 horas diárias gastas em busca manual e planilhas.
+- Perda de prazos: Alertas de serviços terceirizados falham em captar datas.
+- Gargalo documental (CAT): Certidão de Acervo Técnico é central; remontar
+  documentação para cada edital (sem padrão entre prefeituras) é a maior dor.
+- Viabilidade orçamentária: Apoio à decisão do engenheiro (comparativo SINAPI,
+  CO-INFRA e BDI), não julgamento automatizado.
+
+Estratégia de Plataforma:
+- MVP (Fase 1): Web Responsiva (Mobile-First) + PWA com Push Notifications.
+- Fase 2 (Futuro): Aplicativo Mobile Nativo (iOS/Android).
+
+
+2. ESTRUTURA DA EQUIPE E DIVISÃO DE PAPÉIS (5 INTEGRANTES)
+--------------------------------------------------------------------------------
+- Integrante 1 (GP & Product Owner):
+  Escopo, Documento de Visão, Requisitos de Negócio (BRD), Glossário e RACI.
+
+- Integrante 2 (Tech Lead & Arquiteto de Software):
+  Arquitetura (Modelo C4), Decisões Arquiteturais (ADRs), Modelo de Dados (DER)
+  e Dicionário de Dados.
+
+- Integrante 3 (Engenheiro Backend — Ingestão & Dados):
+  Integração com API do PNCP, Web Scraping de portais (BLL, BNC), normalização,
+  deduplicação de editais e controle de defasagem de dados.
+
+- Integrante 4 (Engenheiro Backend — Domínio & Negócio):
+  Módulo Protocolo (CAT e Licenças), Máquina de Estados, Motor de Alertas
+  Cruzados, Painel SINAPI/BDI e Especificação OpenAPI 3.0 (Swagger).
+
+- Integrante 5 (Frontend, UX/UI & QA/DevOps):
+  Design System, Protótipos de Alta Fidelidade (Figma), Plano de Testes (SQA),
+  Pipeline de CI/CD, Conteinerização (Docker) e Monitoramento.
+
+
+3. CRONOGRAMA ACADÊMICO DE 16 SEMANAS (6 FASES E MARCOS)
+--------------------------------------------------------------------------------
+- Fase 0 (Sem. 1-2): Discovery, Documento de Visão, Setup e ADRs Base.
+  -> Marco 0: Proposta de Projeto e Visão Aprovadas.
+
+- Fase 1 (Sem. 3-6): Modelo C4, DER e Especificação de Ingestão (PNCP/Scraping).
+  -> Marco 1: Documento de Arquitetura de Software (DAS) Entregue.
+
+- Fase 2 (Sem. 5-8): Módulo Protocolo (CAT, Licenças, Checklist) e Wireframes.
+  -> Marco 2: Especificação do Módulo Protocolo + Protótipos de Tela.
+
+- Fase 3 (Sem. 7-10): Painel de Priorização, Alertas Cruzados, SINAPI e OpenAPI.
+  -> Marco 3: Especificação Funcional Completa (SRS) + Contratos OpenAPI.
+
+- Fase 4 (Sem. 11-13): Plano de Testes (SQA), Matriz de Rastreabilidade (RTM).
+  -> Marco 4: Plano de Testes + Rastreabilidade 100% Mapeada.
+
+- Fase 5 (Sem. 14-16): DevOps/CI/CD, Consolidação da Monografia e Apresentação.
+  -> Marco 5: Relatório Técnico Final + Defesa para a Banca Acadêmica.
+
+
+4. DOCUMENTOS E ARTEFATOS JÁ GERADOS NO PROJETO
+--------------------------------------------------------------------------------
+[1] Escopo_e_Cronograma_Documentacao.md
+    - Detalhamento completo das 16 semanas, EAP de 18 artefatos, Matriz RACI,
+      gestão de riscos e padrões acadêmicos de engenharia de software.
+
+[2] Requisitos_Funcionais_e_Nao_Funcionais.md
+    - 23 Requisitos Funcionais (RF-01 a RF-23) divididos em 7 módulos:
+      * M1: Ingestão Multi-Portal (PNCP, Scraping, Deduplicação).
+      * M2: Filtros por Tipo de Obra, Região e Busca Textual.
+      * M3: Painel de Priorização (Dashboard Kanban, Notas de 1 a 5, Go/No-Go).
+      * M4: Gestão de Prazos e Alertas Cruzados com histórico de checagem.
+      * M5: Módulo Protocolo (CAT como 1ª classe, Licenças, Checklists).
+      * M6: Painel Consultivo de Orçamento (Comparativo SINAPI/CO-INFRA e BDI).
+      * M7: Gestão de Acessos, Usuários e Perfis.
+    - 17 Requisitos Não Funcionais (RNF-01 a RNF-17):
+      * Web Responsiva + PWA no MVP e base para App Mobile Nativo (Fase 2).
+      * Desempenho (<2s), Ingestão Assíncrona e Cache Redis.
+      * Disponibilidade 99,5%, Tolerância a Falhas e Rastreabilidade de Origem.
+      * Segurança TLS 1.3, Criptografia AES-256 de documentos e LGPD.
+      * Contratos OpenAPI 3.0 e Cobertura de Testes >= 70% no CI/CD.
+
+
+5. PRÓXIMOS PASSOS IMEDIATOS (FASE 0 / FASE 1)
+--------------------------------------------------------------------------------
+1. Integrante 1 (GP): Fechar Documento de Visão formal e Glossário.
+2. Integrante 2 (Arquiteto): Iniciar o Modelo C4 (Nível 1 - Contexto) e ADRs.
+3. Integrante 3 (Backend Ingestão): Mapear os payloads da API pública do PNCP.
+4. Integrante 4 (Backend Domínio): Estruturar o modelo da entidade CAT.
+5. Integrante 5 (UX/QA): Iniciar o fluxo de navegação e primeiros wireframes.
+================================================================================
