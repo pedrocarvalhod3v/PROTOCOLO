@@ -6,7 +6,7 @@
 
 ### 1.1 Identificação do Projeto
 - **Nome do Projeto:** PROTOCOLO — Plataforma de Gestão e Monitoramento de Licitações e Habilitação Técnica
-- **Natureza:** Projeto Acadêmico de Engenharia de Software / Trabalho de Conclusão de Curso (TCC) / Projeto Integrador
+- **Natureza:** Projeto Acadêmico de Engenharia de Software 
 - **Duração:** 16 Semanas (1 Semestre Letivo / 8 Sprints quinzenais)
 - **Tamanho da Equipe:** 5 Integrantes
 
@@ -77,7 +77,7 @@ mindmap
       Máquina de Estados (Edital e CAT)
       Contrato de APIs Internas (OpenAPI 3.0)
       Regras de Comparação Financeira (SINAPI/BDI)
-    5. UI/UX, Qualidade e DevOps
+    5. UI/UX, Qualidade e DevOps              
       Especificação de UX/UI e Protótipos
       Plano de Garantia da Qualidade (SQA)
       Matriz de Casos de Teste
