@@ -29,8 +29,8 @@ Para simular um ambiente profissional e garantir profundidade acadêmica, os 5 m
 
 ```mermaid
 graph TD
-    M1["Júlio Braga<br/><b>Gerente de Projetos & PO</b><br/><i>Requisitos de Negócio, Escopo, Riscos, RACI</i>"]
-    M2["Pedro Carvalho<br/><b>Tech Lead & Arquiteto</b><br/><i>Modelo C4, ADRs, Modelo de Dados, NFRs</i>"]
+    M1["Júlio<br/><b>Gerente de Projetos & PO</b><br/><i>Requisitos de Negócio, Escopo, Riscos, RACI</i>"]
+    M2["Pedro<br/><b>Tech Lead & Arquiteto</b><br/><i>Modelo C4, ADRs, Modelo de Dados, NFRs</i>"]
     M3["Rafael<br/><b>Backend: Ingestão & Dados</b><br/><i>API PNCP, Scraping, Normalização, Resiliência</i>"]
     M4["Matheus<br/><b>Backend: Domínio & Negócio</b><br/><i>CAT, Regras de Negócio, SRS/Gherkin, APIs Internas</i>"]
     M5["Ryan Vitor<br/><b>Frontend, QA & DevOps</b><br/><i>UX/UI, Plano de Testes, CI/CD, Observabilidade</i>"]
@@ -42,15 +42,15 @@ graph TD
 ```
 
 ### Detalhamento dos Papéis:
-1. **Integrante 1 — Gerente de Projetos & Product Owner (GP/PO):**
+1. **Júlio — Gerente de Projetos & Product Owner (GP/PO):**
    - Condução da metodologia ágil, alinhamento de escopo, documentação de requisitos de negócio (BRD), Documento de Visão, matriz de rastreabilidade e gestão de riscos.
-2. **Integrante 2 — Tech Lead & Arquiteto de Software:**
+2. **Pedro — Tech Lead & Arquiteto de Software:**
    - Decisões arquiteturais fundamentadas (ADRs), modelagem de arquitetura de software (Modelo C4, diagramas de implantação), modelagem do banco de dados (MER/DER) e requisitos não-funcionais.
-3. **Integrante 3 — Engenheiro de Backend: Ingestão, Integrações & Dados:**
+3. **Rafael — Engenheiro de Backend: Ingestão, Integrações & Dados:**
    - Engenharia de pipeline de dados, documentação de integração com PNCP e scraping de portais municipais/estaduais, regras de deduplicação, normalização e controle de defasagem.
-4. **Integrante 4 — Engenheiro de Backend: Domínio, Negócio & APIs:**
+4. **Matheus — Engenheiro de Backend: Domínio, Negócio & APIs:**
    - Especificação funcional detalhada (SRS em formato BDD/Gherkin), máquina de estados do edital e do CAT, painel comparativo SINAPI/CO-INFRA, motor de alertas e documentação OpenAPI/Swagger.
-5. **Integrante 5 — Engenheiro de Frontend, UX/UI & QA/DevOps:**
+5. **Ryan Vitor — Engenheiro de Frontend, UX/UI & QA/DevOps:**
    - Especificação de interface e experiência (Design System, Wireframes, fluxo de telas), Plano de Testes de Software (SQA, casos de teste manuais e automatizados) e especificação da infraestrutura (Docker, CI/CD, monitoramento).
 
 ---
@@ -90,13 +90,13 @@ mindmap
 
 ### 3.1 Entregáveis Detalhados por Módulo de Documentação
 
-#### Bloco 1: Gestão de Projetos e Requisitos de Negócio (Responsável: Integrante 1)
+#### Bloco 1: Gestão de Projetos e Requisitos de Negócio (Responsável: Júlio)
 - **DOC-01: Documento de Visão do Produto (Vision Doc):** Declaração do problema, personas (Engenheiro Orçamentista, Gestor de Contratos), proposta de valor e limites do produto.
 - **DOC-02: Documento de Requisitos de Negócio (BRD):** Mapeamento das dores validadas na entrevista com métricas de sucesso (ex: redução de 2h para 15 min na triagem de editais).
 - **DOC-03: Glossário Técnico-Regulatório:** Definição formal de termos como CAT (Certidão de Acervo Técnico), BDI (Benefícios e Despesas Indiretas), PNCP, SINAPI, CO-INFRA, Habilitação Jurídica e Qualificação Técnica.
 - **DOC-04: Matriz de Rastreabilidade de Requisitos (RTM):** Mapeamento bidirecional: *Dor da Entrevista $\to$ Requisito de Negócio $\to$ Caso de Uso/User Story $\to$ Módulo do Sistema $\to$ Caso de Teste*.
 
-#### Bloco 2: Arquitetura de Software e Dados (Responsável: Integrante 2)
+#### Bloco 2: Arquitetura de Software e Dados (Responsável: Pedro)
 - **DOC-05: Documento de Arquitetura de Software (DAS):** 
   - Modelo C4: Nível 1 (Contexto), Nível 2 (Contêineres), Nível 3 (Componentes dos serviços principais).
   - Padrões arquiteturais adotados (Modular Monolith / Microserviços orientados a eventos com Filas de Ingestão).
@@ -108,13 +108,13 @@ mindmap
   - Diagrama Entidade-Relacionamento (DER Lógico e Físico).
   - Entidades de Primeira Classe: `Edital`, `FontePublicacao`, `Licitante`, `CAT`, `ItemOrcamentario`, `TabelaReferencia` (SINAPI/CO-INFRA), `AlertaPrazo`.
 
-#### Bloco 3: Engenharia de Ingestão, Integrações e Dados (Responsável: Integrante 3)
+#### Bloco 3: Engenharia de Ingestão, Integrações e Dados (Responsável: Rafael)
 - **DOC-08: Especificação Técnica de Ingestão do PNCP:** Mapeamento de endpoints da API pública do Portal Nacional de Contratações Públicas, esquemas de payload, paginação e controle de rate-limiting.
 - **DOC-09: Arquitetura do Mecanismo de Coleta Multi-Portal (Scraping):** Estratégia para portais estaduais/municipais (BLL, BNC, Compras Públicas), isolamento de falhas, retentativas exponenciais e circuit breakers.
 - **DOC-10: Pipeline de Normalização e Deduplicação:** Algoritmo de cruzamento e identificação de editais duplicados publicados em múltiplos portais.
 - **DOC-11: Especificação de Monitoramento de Defasagem de Dados:** Métricas de SLA para atualização de dados e exibição de "Última verificação bem-sucedida".
 
-#### Bloco 4: Domínio, Regras de Negócio e APIs (Responsável: Integrante 4)
+#### Bloco 4: Domínio, Regras de Negócio e APIs (Responsável: Matheus)
 - **DOC-12: Especificação de Requisitos de Software (SRS) em BDD/Gherkin:**
   - Requisitos Funcionais estruturados em `Dado / Quando / Então` para os módulos:
     - Ingestão e Filtros por Tipo de Obra/Região.
@@ -126,7 +126,7 @@ mindmap
   - Ciclo de vida de uma CAT / Certidão: `Válida` $\to$ `Em Alerta de Vencimento` $\to$ `Expirada` $\to$ `Renovada`.
 - **DOC-14: Especificação de APIs Internas (Swagger / OpenAPI 3.0):** Contratos REST completos para o frontend consumir os serviços de domínio e agregação.
 
-#### Bloco 5: UI/UX, Qualidade (QA) e DevOps (Responsável: Integrante 5)
+#### Bloco 5: UI/UX, Qualidade (QA) e DevOps (Responsável: Ryan Vitor)
 - **DOC-15: Documento de Design de Interface e Experiência (UI/UX):**
   - Mapa do Site e Fluxo de Navegação.
   - Wireframes e Protótipos de Alta Fidelidade (Dashboard de Priorização, Checklist por Edital, Comparador de BDI/SINAPI).

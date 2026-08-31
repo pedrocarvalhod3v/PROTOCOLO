@@ -26,11 +26,11 @@ Desenvolver a **documentação completa e formal de Engenharia de Software** do 
 
 ```mermaid
 graph TD
-    M1["Integrante 1<br/><b>Gerente de Projetos & PO</b><br/><i>Requisitos de Negócio, Escopo, Riscos, RACI</i>"]
-    M2["Integrante 2<br/><b>Tech Lead & Arquiteto</b><br/><i>Modelo C4, ADRs, Modelo de Dados, NFRs</i>"]
-    M3["Integrante 3<br/><b>Backend: Ingestão & Dados</b><br/><i>API PNCP, Scraping, Normalização, Resiliência</i>"]
-    M4["Integrante 4<br/><b>Backend: Domínio & Negócio</b><br/><i>CAT, Regras de Negócio, SRS/Gherkin, APIs Internas</i>"]
-    M5["Integrante 5<br/><b>Frontend, QA & DevOps</b><br/><i>UX/UI, Plano de Testes, CI/CD, Observabilidade</i>"]
+    M1["Júlio<br/><b>Gerente de Projetos & PO</b><br/><i>Requisitos de Negócio, Escopo, Riscos, RACI</i>"]
+    M2["Pedro<br/><b>Tech Lead & Arquiteto</b><br/><i>Modelo C4, ADRs, Modelo de Dados, NFRs</i>"]
+    M3["Rafael<br/><b>Backend: Ingestão & Dados</b><br/><i>API PNCP, Scraping, Normalização, Resiliência</i>"]
+    M4["Matheus<br/><b>Backend: Domínio & Negócio</b><br/><i>CAT, Regras de Negócio, SRS/Gherkin, APIs Internas</i>"]
+    M5["Ryan Vitor<br/><b>Frontend, QA & DevOps</b><br/><i>UX/UI, Plano de Testes, CI/CD, Observabilidade</i>"]
 
     M1 --- M2
     M2 --- M3
@@ -39,15 +39,15 @@ graph TD
 ```
 
 ### Atribuições dos Membros:
-1. **Integrante 1 — Gerente de Projetos & Product Owner (GP/PO):**
+1. **Júlio — Gerente de Projetos & Product Owner (GP/PO):**
    - Gestão ágil, controle de prazos e escopo, Documento de Visão (Vision Doc), Requisitos de Negócio (BRD), Glossário Técnico e Matriz de Rastreabilidade (RTM).
-2. **Integrante 2 — Tech Lead & Arquiteto de Software:**
+2. **Pedro — Tech Lead & Arquiteto de Software:**
    - Documento de Arquitetura de Software (DAS) em Modelo C4, Registros de Decisões Arquiteturais (ADRs), Diagrama Entidade-Relacionamento (DER Lógico/Físico) e Dicionário de Dados.
-3. **Integrante 3 — Engenheiro de Backend (Ingestão & Dados):**
+3. **Rafael — Engenheiro de Backend (Ingestão & Dados):**
    - Especificação técnica da integração PNCP, arquitetura dos scrapers para portais municipais/estaduais (BLL, BNC), algoritmos de deduplicação/normalização e tratamento de defasagem de dados.
-4. **Integrante 4 — Engenheiro de Backend (Domínio & Regras de Negócio):**
+4. **Matheus — Engenheiro de Backend (Domínio & Regras de Negócio):**
    - Especificação de Requisitos de Software (SRS) em Gherkin/BDD, Máquina de Estados (Edital e CAT), contratos REST OpenAPI 3.0 e regras do comparativo financeiro (SINAPI/BDI).
-5. **Integrante 5 — Engenheiro de Frontend, UX/UI & QA/DevOps:**
+5. **Ryan Vitor — Engenheiro de Frontend, UX/UI & QA/DevOps:**
    - Mapa de Navegação, Design System e Protótipos de Alta Fidelidade (Figma), Plano de Garantia da Qualidade (SQA / Casos de Teste) e Arquitetura de CI/CD e Implantação (Docker/Kubernetes).
 
 ---
