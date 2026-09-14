@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="none">
+  <defs>
+    <!-- Gradient for the dynamic upward arrow and lower ribbon -->
+    <linearGradient id="arrowGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0d9488" />
+      <stop offset="50%" stop-color="#14b8a6" />
+      <stop offset="100%" stop-color="#2dd4bf" />
+    </linearGradient>
+    <linearGradient id="buildingGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Buildings behind/inside the folder -->
+  <!-- Left Building (Teal) -->
+  <path d="M 190 190 L 190 140 L 225 140 L 225 190" stroke="#14b8a6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Center/Tall Building (Navy with sloped roof) -->
+  <path d="M 235 190 L 235 90 L 290 120 L 290 190" stroke="#1e293b" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Center Building Inner Bar (Teal) -->
+  <path d="M 262 190 L 262 145" stroke="#14b8a6" stroke-width="12" stroke-linecap="round" />
+
+  <!-- Right Building (Teal) -->
+  <path d="M 295 190 L 295 160 L 320 160 L 320 190" stroke="#14b8a6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Outer Folder Structure (Dark Navy) -->
+  <path d="M 125 155 
+           L 185 155 
+           L 220 195 
+           L 345 195 
+           L 320 365 
+           L 180 365 
+           M 125 155 
+           L 125 365" 
+        stroke="#1e293b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Dynamic Curved Ribbon & Arrow -->
+  <!-- Bottom-left Ribbon Base & Shadow -->
+  <path d="M 125 365 C 125 310, 160 225, 230 225 C 290 225, 305 200, 340 195" 
+        stroke="#1e293b" stroke-width="15" stroke-linecap="round" fill="none" />
+
+  <!-- Green Dynamic Swoosh / Growth Arrow -->
+  <path d="M 135 320 C 170 320, 210 280, 255 240 C 275 220, 290 210, 305 200" 
+        stroke="url(#arrowGradient)" stroke-width="16" stroke-linecap="round" fill="none" />
+
+  <!-- Arrow Head -->
+  <polygon points="310,185 270,195 295,225" fill="#14b8a6" />
+</svg>
