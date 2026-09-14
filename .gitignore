@@ -1,4 +1,4 @@
-﻿# OS files
+# OS files
 Thumbs.db
 Desktop.ini
 .DS_Store
@@ -9,3 +9,9 @@ Desktop.ini
 # IDE files
 .vscode/
 .idea/
+
+# Documentos internos e confidenciais
+Resumo_Status_Equipe.txt
+Transcricao_ClienteV1.txt
+*Status_Equipe*
+*Transcricao*
