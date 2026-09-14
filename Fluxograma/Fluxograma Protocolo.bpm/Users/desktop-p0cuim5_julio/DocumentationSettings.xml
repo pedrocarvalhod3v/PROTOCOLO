@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<DocumentationSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceType>User</SourceType>
+  <ExportBPMNAttachments>false</ExportBPMNAttachments>
+  <ShapeFilters />
+  <RoleFiltersString>{}</RoleFiltersString>
+  <SelectedDiagrams />
+  <htmlFolderHierarchy xsi:nil="true" />
+  <Settings />
+</DocumentationSettings>
