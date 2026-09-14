@@ -1,4 +1,5 @@
-# PROTOCOLO — Planejamento de Escopo e Cronograma de Documentação de Software 
+# PROTOCOLO 
+Planejamento de Escopo e Cronograma de Documentação de Software 
 
 ## 1. Visão Geral e Contexto Acadêmico
 
