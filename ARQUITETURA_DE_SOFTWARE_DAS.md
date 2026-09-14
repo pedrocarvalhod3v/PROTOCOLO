@@ -26,70 +26,103 @@ A arquitetura do PROTOCOLO adota o padrão **Modular Monolith orientado a evento
 
 ### 2.1 C4 — Nível 1: Diagrama de Contexto do Sistema
 
-O diagrama abaixo ilustra os usuários finais, os limites do sistema PROTOCOLO e as entidades externas com as quais o sistema interage:
+O diagrama abaixo ilustra as personas que utilizam a plataforma, os limites do sistema **PROTOCOLO** e as entidades externas integradas:
 
 ```mermaid
-C4Context
-    title Diagrama de Contexto de Sistema (C4 - Nível 1) - PROTOCOLO
+flowchart TB
+    %% Estilização padrão C4
+    classDef person fill:#08427b,stroke:#052a4f,stroke-width:2px,color:#ffffff;
+    classDef system fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff;
+    classDef external fill:#4b5563,stroke:#374151,stroke-width:2px,color:#ffffff;
+    classDef boundary fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,stroke-dasharray: 4 4,color:#1e293b;
 
-    Person(eng, "Engenheiro / Orçamentista", "Analisa viabilidade técnica, planilhas orçamentárias (SINAPI), CATs e prazos.")
-    Person(analista, "Analista de Licitações", "Realiza triagem diária, classifica Go/No-Go e monta checklist de habilitação.")
-    Person(diretor, "Diretor / Administrador", "Acompanha funil de oportunidades ganhas/perdidas e custos de participação.")
+    subgraph USUARIOS [" 👥 Personas da Construtora Cliente "]
+        direction LR
+        eng["👷 <b>Engenheiro / Orçamentista</b><br/><i>Analisa viabilidade (SINAPI), CATs e prazos</i>"]:::person
+        analista["📋 <b>Analista de Licitações</b><br/><i>Triagem diária, Go/No-Go e checklist</i>"]:::person
+        diretor["💼 <b>Diretor / Administrador</b><br/><i>Funil de oportunidades e custos</i>"]:::person
+    end
 
-    System(protocolo, "Sistema PROTOCOLO", "Plataforma de monitoramento de licitações, gestão de acervo técnico (CAT) e viabilidade orçamentária.")
+    subgraph PROTOCOLO_BOUNDARY [" 🏛️ Limites da Plataforma PROTOCOLO "]
+        direction TB
+        protocolo["🎯 <b>Sistema PROTOCOLO</b><br/><i>[Software System]</i><br/>Plataforma centralizada de monitoramento multi-portal, verificação cruzada de prazos, gestão de acervo técnico (CAT) e viabilidade orçamentária."]:::system
+    end
 
-    System_Ext(pncp, "API Pública do PNCP", "Portal Nacional de Contratações Públicas (dados federais, estaduais e municipais).")
-    System_Ext(portais_privados, "Portais de Licitação Complementares", "BLL Compras, BNC, Compras Públicas, Portais Municipais.")
-    System_Ext(sinapi_base, "Bases de Referência Oficial", "Tabelas de Preços SINAPI (CEF) e CO-INFRA (Goiás).")
-    System_Ext(notificacoes, "Serviços de Notificação Externa", "Web Push (VAPID/Service Worker), E-mail Transacional (SMTP/SES).")
+    subgraph EXTERNOS [" 🌐 Sistemas e Provedores Externos "]
+        direction LR
+        pncp["🏛️ <b>API Pública do PNCP</b><br/><i>Portal Nacional de Contratações</i>"]:::external
+        portais["📑 <b>Portais Complementares</b><br/><i>BLL Compras, BNC, Portais Municipais</i>"]:::external
+        sinapi["📊 <b>Bases Oficiais de Custos</b><br/><i>Tabelas SINAPI (CEF) e CO-INFRA</i>"]:::external
+        notif["🔔 <b>Serviços de Notificação</b><br/><i>Web Push (PWA) e E-mail Transacional</i>"]:::external
+    end
 
-    Rel(eng, protocolo, "Consulta viabilidade SINAPI, simula BDI e vincula CATs", "HTTPS / PWA")
-    Rel(analista, protocolo, "Filtra editais, define Go/No-Go e emite dossiês", "HTTPS / PWA")
-    Rel(diretor, protocolo, "Visualiza dashboards consolidados", "HTTPS / PWA")
+    %% Conexões de Usuários para o Sistema
+    eng -->|Consulta SINAPI, simula BDI e vincula CATs| protocolo
+    analista -->|Filtra editais, define Go/No-Go e emite dossiês| protocolo
+    diretor -->|Visualiza dashboards e métricas de conversão| protocolo
 
-    Rel(protocolo, pncp, "Consome editais e retificações via REST", "HTTPS / JSON")
-    Rel(protocolo, portais_privados, "Coleta avisos e atas via Web Scraping", "HTTPS / HTML")
-    Rel(protocolo, sinapi_base, "Importa insumos e composições de custos", "FTP / CSV / API")
-    Rel(protocolo, notificacoes, "Dispara alertas de prazos e vencimento de certidões", "WebPush / SMTP")
+    %% Conexões do Sistema para Sistemas Externos
+    protocolo -->|Consome editais e retificações via REST| pncp
+    protocolo -->|Coleta avisos e atas via Web Scraping| portais
+    protocolo -->|Importa insumos e composições de referência| sinapi
+    protocolo -->|Dispara alertas de prazos e vencimento de certidões| notif
 ```
 
 ---
 
 ### 2.2 C4 — Nível 2: Diagrama de Contêineres
 
-O sistema é estruturado em contêineres independentes e conteinerizados via Docker:
+O sistema é particionado em contêineres desacoplados, organizados em camadas hierárquicas claras (Apresentação, Roteamento, Serviços de Aplicação e Persistência/Filas). Esse layout em camadas garante legibilidade total dos fluxos e elimina sobreposição de conectores:
 
 ```mermaid
-C4Container
-    title Diagrama de Contêineres (C4 - Nível 2) - PROTOCOLO
+flowchart TB
+    %% Definições visuais com paleta oficial C4
+    classDef person fill:#08427b,stroke:#052a4f,stroke-width:2px,color:#ffffff;
+    classDef frontend fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff;
+    classDef gateway fill:#2b5b84,stroke:#1d3e5a,stroke-width:2px,color:#ffffff;
+    classDef backend fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff;
+    classDef worker fill:#438dd5,stroke:#2b5b84,stroke-width:2px,color:#ffffff;
+    classDef storage fill:#1f618d,stroke:#154360,stroke-width:2px,color:#ffffff;
+    classDef tier fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,stroke-dasharray: 4 4,color:#0f172a;
 
-    Person(usuario, "Usuário da Construtora", "Engenheiro, Analista ou Diretor")
+    subgraph TIER_CLIENTE [" 1. Camada de Apresentação & Usuário "]
+        direction LR
+        usuario["👤 <b>Usuário da Construtora</b><br/><i>[Engenheiro, Analista, Diretor]</i>"]:::person
+        spa["💻 <b>Single Page Application (PWA)</b><br/><i>[Container: React / Next.js + Tailwind CSS]</i><br/>Interface responsiva mobile-first com cache local e Web Push"]:::frontend
+        usuario -->|Interação via navegador / PWA| spa
+    end
 
-    Container(spa, "Single Page Application (PWA)", "React / Next.js, Tailwind CSS, Service Workers", "Interface responsiva mobile-first com cache offline de consultas e suporte a Web Push.")
+    subgraph TIER_BORDA [" 2. Camada de Borda & Segurança "]
+        direction TB
+        api_gateway["🛡️ <b>API Gateway & Reverse Proxy</b><br/><i>[Container: Nginx / Traefik]</i><br/>Terminação TLS 1.3, Roteamento, Rate Limiting e CORS"]:::gateway
+    end
 
-    Container(api_gateway, "API Gateway / Reverse Proxy", "Nginx / Traefik", "Terminação TLS 1.3, roteamento, rate limiting e proteção contra abusos.")
+    subgraph TIER_CORE [" 3. Camada de Aplicação e Processamento (Backend) "]
+        direction LR
+        backend_api["⚙️ <b>Backend Core API</b><br/><i>[Container: FastAPI / NestJS]</i><br/>Autenticação JWT, Regras de CAT, Checklists, Comparador SINAPI e BDI"]:::backend
+        worker_ingestion["🔄 <b>Ingestion & Sync Worker</b><br/><i>[Container: Celery / Python Asyncio]</i><br/>Coleta PNCP, Scrapers (BLL/BNC), Deduplicação e Alertas de Prazos"]:::worker
+    end
 
-    Container(backend_api, "Backend Core API", "FastAPI (Python) / Node.js (NestJS)", "Expõe contratos RESTful OpenAPI 3.0 para autenticação, triagem, checklist e cálculo orçamentário.")
+    subgraph TIER_DADOS [" 4. Camada de Dados, Mensageria & Armazenamento "]
+        direction LR
+        db_relacional[("🗄️ <b>Banco Relacional Principal</b><br/><i>[Container: PostgreSQL 16]</i><br/>Editais, CATs, Checklists, RLS Multi-tenant e JSONB")]:::storage
+        cache_queue[("⚡ <b>Fila Assíncrona & Cache</b><br/><i>[Container: Redis 7]</i><br/>Filas Celery de scraping, cache de tabelas SINAPI e sessões")]:::storage
+        object_storage[("📦 <b>Storage de Documentos</b><br/><i>[Container: MinIO / S3]</i><br/>PDFs de CATs, certidões e editais com criptografia AES-256")]:::storage
+    end
 
-    Container(worker_ingestion, "Ingestion & Sync Worker", "Python (Celery / Asyncio / Playwright)", "Consome API PNCP, executa scrapers, unifica fontes e calcula divergências de prazos em background.")
+    %% Fluxo de Requisições do Usuário (Top-Down Limpo)
+    spa -->|Requisições RESTful / JSON / WSS| api_gateway
+    api_gateway -->|Encaminha chamadas com validação JWT| backend_api
 
-    ContainerDb(db_relacional, "Banco de Dados Principal", "PostgreSQL 16", "Armazena dados transacionais relacionais (Editais, CATs, Checklists) e metadados flexíveis em JSONB.")
+    %% Conexões do Backend Core API com a camada de dados
+    backend_api -->|Consultas SQL e RLS multi-tenant| db_relacional
+    backend_api -->|Cache de tabelas e despacho de jobs| cache_queue
+    backend_api -->|Download e streaming de PDFs / Dossiês| object_storage
 
-    ContainerDb(cache_queue, "Fila de Mensageria & Cache", "Redis 7", "Fila de tarefas assíncronas de scraping, cache de tabelas SINAPI e controle de sessões ativas.")
-
-    ContainerDb(object_storage, "Armazenamento de Documentos", "MinIO / S3 Compatible", "Repositório seguro com criptografia AES-256 para PDFs de CATs, certidões e editais originais.")
-
-    Rel(usuario, spa, "Navega, tria editais e gerencia documentos", "HTTPS")
-    Rel(spa, api_gateway, "Requisições de negócio e autenticação", "JSON / HTTPS / WSS")
-    Rel(api_gateway, backend_api, "Encaminha chamadas com validação de token JWT", "HTTP / TCP")
-
-    Rel(backend_api, db_relacional, "Leitura e escrita de dados com isolamento multi-tenant", "SQL / TCP 5432")
-    Rel(backend_api, cache_queue, "Consulta cache de tabelas e enfileira comandos", "Redis Protocol / TCP 6379")
-    Rel(backend_api, object_storage, "Upload e download de documentos anexos", "S3 API / HTTPS")
-
-    Rel(worker_ingestion, cache_queue, "Consome tarefas de scraping e despacha eventos", "Redis Queue")
-    Rel(worker_ingestion, db_relacional, "Persiste editais normalizados e logs de checagem", "SQL / TCP 5432")
-    Rel(worker_ingestion, object_storage, "Armazena cópia bruta dos editais baixados", "S3 API")
+    %% Conexões dos Workers Assíncronos (Desacoplados via Redis)
+    cache_queue -.->|1. Consome tarefas de coleta agendadas| worker_ingestion
+    worker_ingestion -.->|2. Persiste editais e divergências| db_relacional
+    worker_ingestion -.->|3. Armazena PDFs brutos coletados| object_storage
 ```
 
 ---
@@ -97,47 +130,96 @@ C4Container
 ### 2.3 C4 — Nível 3: Diagrama de Componentes dos Módulos Principais
 
 #### 2.3.1 Subsistema de Ingestão e Deduplicação (Responsável: Rafael — M3)
-O pipeline garante que a indisponibilidade de um portal não afete o restante e trata editais repetidos:
+O pipeline garante o desacoplamento de cada conector de dados, isolando falhas e tratando editais idênticos publicados em múltiplos portais:
 
 ```mermaid
-graph TD
-    subgraph Pipeline de Ingestão e Normalização
-        A[Scheduler Cron] -->|Dispara a cada 30 min| B[Task Dispatcher]
-        B --> C[PNCP Connector]
-        B --> D[BLL Compras Scraper]
-        B --> E[BNC / Portais Municipais Scraper]
+flowchart TD
+    classDef trigger fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#ffffff;
+    classDef collector fill:#438dd5,stroke:#2b5b84,stroke-width:2px,color:#ffffff;
+    classDef engine fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff;
+    classDef storage fill:#1f618d,stroke:#154360,stroke-width:2px,color:#ffffff;
+    classDef decision fill:#eab308,stroke:#ca8a04,stroke-width:2px,color:#000000;
 
-        C -->|Raw JSON| F[Normalizer Engine]
-        D -->|Raw HTML| F
-        E -->|Raw HTML| F
-
-        F -->|Objeto Unificado| G[Deduplication Matcher]
-        G -->|Cálculo de Similaridade e Chave Única| H{Edital Já Existe?}
-        
-        H -->|Sim| I[Link Fonte Adicional & Checa Divergência de Prazos]
-        H -->|Não| J[Cadastra Novo Edital e Cria Alertas Iniciais]
-
-        I --> K[(PostgreSQL: Edital / FontePublicacao / AlertaPrazo)]
-        J --> K
+    subgraph SCHEDULER_TIER [" Agendamento & Disparo "]
+        A["⏱️ <b>Scheduler Cron</b><br/>Disparo a cada 30 min"]:::trigger --> B["📋 <b>Task Dispatcher</b><br/>Enfileira jobs no Redis"]:::trigger
     end
+
+    subgraph COLLECTORS_TIER [" Conectores de Fontes Oficiais "]
+        direction LR
+        C["🏛️ <b>PNCP Connector</b><br/>API Pública REST"]:::collector
+        D["📑 <b>BLL Scraper</b><br/>Rotinas Web Scraping"]:::collector
+        E["🔍 <b>BNC / Portais Municipais</b><br/>Conectores Customizados"]:::collector
+    end
+
+    subgraph PROCESSING_TIER [" Pipeline de Saneamento & Deduplicação "]
+        direction TB
+        F["⚙️ <b>Normalizer Engine</b><br/>Padronização de formatos e datas"]:::engine
+        G["🔬 <b>Deduplication Matcher</b><br/>Cálculo de similaridade e hash do objeto"]:::engine
+        H{"Edital Já<br/>Cadastrado?"}:::decision
+        I["🔗 <b>Link de Fonte Adicional</b><br/>Registra SLA e checa divergência de prazos"]:::engine
+        J["✨ <b>Cadastra Novo Edital</b><br/>Indexa e agenda alertas de prazos"]:::engine
+    end
+
+    subgraph STORAGE_TIER [" Persistência "]
+        K[("🗄️ <b>PostgreSQL 16</b><br/>Tabelas: Edital, FontePublicacao, AlertaPrazo")]:::storage
+    end
+
+    B --> C
+    B --> D
+    B --> E
+
+    C -->|Raw JSON| F
+    D -->|Raw HTML| F
+    E -->|Raw HTML| F
+
+    F --> G
+    G --> H
+
+    H -->|Sim: Mesmo Edital| I
+    H -->|Não: Nova Oportunidade| J
+
+    I --> K
+    J --> K
 ```
 
 #### 2.3.2 Subsistema de Domínio e Módulo Protocolo (Responsável: Matheus — M4)
-Centraliza a regra de negócio da CAT e conformidade documental:
+Centraliza a regra de negócio da CAT como entidade de primeira classe e a conformidade documental:
 
 ```mermaid
-graph TD
-    subgraph Módulo Protocolo & Viabilidade
-        L[API Controller: /api/v1/protocolo] --> M[CAT Service]
-        L --> N[Certidao Monitor Service]
-        L --> O[Checklist Builder Service]
-        L --> P[SINAPI / BDI Comparator Engine]
+flowchart TD
+    classDef controller fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#ffffff;
+    classDef service fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff;
+    classDef entity fill:#1f618d,stroke:#154360,stroke-width:2px,color:#ffffff;
 
-        M -->|Valida ART/CREA e quantitativos| Q[(Entidade CAT)]
-        N -->|Checa validade (30d, 15d, 5d)| R[(Entidade Certidão)]
-        O -->|Vincula CATs e Certidões exigidas| S[(Checklist do Edital)]
-        P -->|Cruza itens com tabela vigente| T[(Tabela Referência)]
+    subgraph CONTROLLER_LAYER [" Entrada de API "]
+        L["🚪 <b>API Controller: /api/v1/protocolo</b><br/>Validação de esquema e autorização"]:::controller
     end
+
+    subgraph DOMAIN_SERVICES [" Serviços de Domínio "]
+        direction LR
+        M["📜 <b>CAT Service</b><br/>Atestados, CREA e quantitativos"]:::service
+        N["⏰ <b>Certidão Monitor</b><br/>Validade (30d, 15d, 5d)"]:::service
+        O["✅ <b>Checklist Builder</b><br/>Conformidade documental por edital"]:::service
+        P["📊 <b>SINAPI / BDI Engine</b><br/>Comparador orçamentário"]:::service
+    end
+
+    subgraph ENTITY_LAYER [" Modelos de Domínio Persistidos "]
+        direction LR
+        Q[("📋 <b>Entidade CAT</b><br/>Acervos Técnicos")]:::entity
+        R[("📑 <b>Entidade Certidão</b><br/>Licenças & CNDs")]:::entity
+        S[("🗂️ <b>Checklist do Edital</b><br/>Dossiê Vinculado")]:::entity
+        T[("📈 <b>Tabela Referência</b><br/>SINAPI e CO-INFRA")]:::entity
+    end
+
+    L --> M
+    L --> N
+    L --> O
+    L --> P
+
+    M -->|Gerencia acervos e ARTs| Q
+    N -->|Checa prazos de expiração| R
+    O -->|Mapeia exigências e associa documentos| S
+    P -->|Cruza preços unitários e calcula BDI| T
 ```
 
 ---
