@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PROTOCOLO — Monitoramento de Licitações & Habilitação Técnica</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 Reativo -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [v-cloak] { display: none; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans" id="app" v-cloak>
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR DE NAVEGAÇÃO -->
+    <aside class="w-72 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 shrink-0 select-none">
+      <div>
+        <!-- Logo Header -->
+        <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-sky-500/20">
+            P
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-white text-lg tracking-wider">PROTOCOLO</span>
+              <span class="text-[10px] font-semibold bg-sky-500/20 text-sky-400 px-1.5 py-0.5 rounded uppercase">MVP v1.0</span>
+            </div>
+            <p class="text-xs text-slate-400">Licitações & Habilitação Técnica</p>
+          </div>
+        </div>
+
+        <!-- Tenant / Construtora -->
+        <div class="px-5 py-3.5 bg-slate-950/60 border-b border-slate-800/80 flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <div class="truncate">
+            <p class="text-xs font-semibold text-slate-200 truncate">Construtora Horizonte LTDA</p>
+            <p class="text-[11px] text-slate-400">Goiânia / GO • CNPJ Ativo</p>
+          </div>
+        </div>
+
+        <!-- Menus de Navegação -->
+        <nav class="p-3 space-y-1.5 text-sm">
+          <button @click="currentTab = 'triagem'" :class="currentTab === 'triagem' ? 'bg-sky-600/20 text-sky-400 font-semibold border-l-4 border-sky-500' : 'hover:bg-slate-800/60 text-slate-400 hover:text-slate-200'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-left">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+              <span>Triagem de Editais</span>
+            </div>
+            <span class="bg-sky-500/20 text-sky-300 text-xs px-2 py-0.5 rounded-full font-mono">{{ editais.length }}</span>
+          </button>
+
+          <button @click="currentTab = 'prazos'" :class="currentTab === 'prazos' ? 'bg-sky-600/20 text-sky-400 font-semibold border-l-4 border-sky-500' : 'hover:bg-slate-800/60 text-slate-400 hover:text-slate-200'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-left">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span>Linha do Tempo & Alertas</span>
+            </div>
+            <span v-if="temDivergencia" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          </button>
+
+          <button @click="currentTab = 'protocolo'" :class="currentTab === 'protocolo' ? 'bg-sky-600/20 text-sky-400 font-semibold border-l-4 border-sky-500' : 'hover:bg-slate-800/60 text-slate-400 hover:text-slate-200'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-left">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span>Módulo Protocolo (CAT)</span>
+            </div>
+            <span class="bg-amber-500/20 text-amber-300 text-xs px-2 py-0.5 rounded-full font-mono">2 alertas</span>
+          </button>
+
+          <button @click="currentTab = 'viabilidade'" :class="currentTab === 'viabilidade' ? 'bg-sky-600/20 text-sky-400 font-semibold border-l-4 border-sky-500' : 'hover:bg-slate-800/60 text-slate-400 hover:text-slate-200'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-left">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+              <span>Viabilidade SINAPI & BDI</span>
+            </div>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Footer da Sidebar: Status dos Conectores -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/40 text-xs text-slate-400 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> API PNCP
+          </span>
+          <span class="text-[11px] text-slate-400">Online (há 14m)</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> BLL / BNC Scraper
+          </span>
+          <span class="text-[11px] text-slate-400">Online (há 22m)</span>
+        </div>
+        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+          <span>Usuário: Pedro (Eng. Orç.)</span>
+          <span class="text-sky-400">v1.0-mvp</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+      <!-- TOPBAR SUPERIOR -->
+      <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-4">
+          <h1 class="text-lg font-bold text-slate-800">
+            <span v-if="currentTab === 'triagem'">Painel de Triagem & Priorização de Editais</span>
+            <span v-else-if="currentTab === 'prazos'">Monitor de Prazos Críticos & Verificação Cruzada</span>
+            <span v-else-if="currentTab === 'protocolo'">Módulo Protocolo — Acervo Técnico (CAT) & Dossiês</span>
+            <span v-else-if="currentTab === 'viabilidade'">Apoio Orçamentário — Comparador SINAPI/CO-INFRA & BDI</span>
+          </h1>
+          <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Filtro Ativo: Estado de Goiás (GO)
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Botão Simular Ingestão -->
+          <button @click="simularNovaIngestao" class="text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 flex items-center gap-1.5 transition">
+            <svg class="w-3.5 h-3.5 text-sky-600 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            Sincronizar Fontes Agora
+          </button>
+
+          <!-- Notificações -->
+          <div class="relative">
+            <button @click="showNotificacoes = !showNotificacoes" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg relative transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+              <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white"></span>
+            </button>
+
+            <!-- Dropdown Notificações -->
+            <div v-if="showNotificacoes" class="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl p-3 z-50 text-xs">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100 font-semibold text-slate-700">
+                <span>Alertas Recentes (PWA Push)</span>
+                <span class="text-sky-600 cursor-pointer" @click="showNotificacoes = false">Fechar</span>
+              </div>
+              <div class="space-y-2.5 mt-2">
+                <div class="p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-900">
+                  <p class="font-semibold flex items-center gap-1">⚠️ Divergência de Prazos</p>
+                  <p class="text-[11px] mt-0.5">Edital 042/2026 (Rio Verde) com horário de abertura divergente entre PNCP (09:00) e Portal Compras (14:00).</p>
+                </div>
+                <div class="p-2 bg-rose-50 border border-rose-200 rounded-lg text-rose-900">
+                  <p class="font-semibold flex items-center gap-1">🚨 Certidão Próxima do Vencimento</p>
+                  <p class="text-[11px] mt-0.5">CRF FGTS vence em 4 dias corridos. Atualize para não ser inabilitado.</p>
+                </div>
+                <div class="p-2 bg-sky-50 border border-sky-200 rounded-lg text-sky-900">
+                  <p class="font-semibold flex items-center gap-1">⏱️ Impugnação de Edital</p>
+                  <p class="text-[11px] mt-0.5">Edital 018/2026 GO-070: Prazo final para impugnação encerra em 24h.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ÁREA DE CONTEÚDO COM SCROLL -->
+      <main class="flex-1 overflow-y-auto custom-scroll p-6">
+
+        <!-- ========================================================================= -->
+        <!-- ABA 1: TRIAGEM E DASHBOARD DE EDITAIS -->
+        <!-- ========================================================================= -->
+        <div v-if="currentTab === 'triagem'" class="space-y-6">
+          
+          <!-- Barra de Filtros Rápidos -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- Busca de Palavra-Chave -->
+              <div class="relative w-64">
+                <input v-model="filtroTexto" type="text" placeholder="Buscar por objeto, órgão, edital..." class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </div>
+
+              <!-- Segmento de Obra Civil -->
+              <select v-model="filtroSegmento" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500">
+                <option value="">Todos os Segmentos</option>
+                <option value="Pavimentação / Rodoviária">Pavimentação & Rodovias</option>
+                <option value="Reforma & Edificações">Reformas & Edificações</option>
+                <option value="Saúde / Hospitais">Saúde & Hospitais (UBS)</option>
+                <option value="Espaço Urbano / Praças">Praças & Urbanismo</option>
+              </select>
+
+              <!-- Município -->
+              <select v-model="filtroMunicipio" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500">
+                <option value="">Todos os Municípios (GO)</option>
+                <option value="Goiânia">Goiânia</option>
+                <option value="Anápolis">Anápolis</option>
+                <option value="Rio Verde">Rio Verde</option>
+              </select>
+            </div>
+
+            <!-- Alternador Kanban / Tabela -->
+            <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
+              <button @click="modoVisualizacao = 'kanban'" :class="modoVisualizacao === 'kanban' ? 'bg-white shadow text-sky-700 font-semibold' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-md transition">
+                Quadro Kanban
+              </button>
+              <button @click="modoVisualizacao = 'lista'" :class="modoVisualizacao === 'lista' ? 'bg-white shadow text-sky-700 font-semibold' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-md transition">
+                Tabela Detalhada
+              </button>
+            </div>
+          </div>
+
+          <!-- MODO KANBAN -->
+          <div v-if="modoVisualizacao === 'kanban'" class="grid grid-cols-1 md:grid-cols-4 gap-5 items-start">
+            
+            <!-- Coluna 1: Descobertos / Novos -->
+            <div class="bg-slate-100/80 rounded-xl p-3 border border-slate-200/80">
+              <div class="flex items-center justify-between mb-3 px-1">
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Descobertos
+                </span>
+                <span class="text-xs bg-slate-200 text-slate-700 font-mono px-2 py-0.5 rounded-full font-bold">
+                  {{ editaisFiltrados.filter(e => e.status === 'Descoberto').length }}
+                </span>
+              </div>
+              <div class="space-y-3">
+                <div v-for="edital in editaisFiltrados.filter(e => e.status === 'Descoberto')" :key="edital.id" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                  <div class="flex items-center justify-between text-[11px] mb-2">
+                    <span class="font-mono text-slate-500 font-medium">{{ edital.numero }}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">{{ edital.segmento }}</span>
+                  </div>
+                  <h4 class="text-xs font-bold text-slate-900 line-clamp-2 mb-1.5">{{ edital.objeto }}</h4>
+                  <p class="text-[11px] text-slate-500 mb-3 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                    {{ edital.orgao }} — {{ edital.municipio }}/{{ edital.estado }}
+                  </p>
+
+                  <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                    <span class="font-bold text-slate-900 font-mono">{{ formatMoeda(edital.valorEstimado) }}</span>
+                    <div class="flex items-center gap-1">
+                      <span v-for="f in edital.fontes" :key="f" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border font-mono">{{ f }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Ações Rápidas de Triagem -->
+                  <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-0.5 text-amber-400">
+                      <button v-for="star in 5" :key="star" @click="edital.prioridade = star" class="hover:scale-125 transition">
+                        <svg class="w-3.5 h-3.5" :fill="star <= edital.prioridade ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                      </button>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <button @click="mudarStatus(edital, 'Em Análise')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-medium transition">Analisar</button>
+                      <button @click="mudarStatus(edital, 'Qualificado (Go)')" class="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded font-medium transition">Go 👍</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna 2: Em Análise Técnica -->
+            <div class="bg-slate-100/80 rounded-xl p-3 border border-slate-200/80">
+              <div class="flex items-center justify-between mb-3 px-1">
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Em Análise
+                </span>
+                <span class="text-xs bg-slate-200 text-slate-700 font-mono px-2 py-0.5 rounded-full font-bold">
+                  {{ editaisFiltrados.filter(e => e.status === 'Em Análise').length }}
+                </span>
+              </div>
+              <div class="space-y-3">
+                <div v-for="edital in editaisFiltrados.filter(e => e.status === 'Em Análise')" :key="edital.id" class="bg-white p-4 rounded-xl border border-amber-200 shadow-sm">
+                  <div class="flex items-center justify-between text-[11px] mb-2">
+                    <span class="font-mono text-slate-500 font-medium">{{ edital.numero }}</span>
+                    <span v-if="edital.temDivergencia" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-300 animate-pulse">Divergência Prazos</span>
+                  </div>
+                  <h4 class="text-xs font-bold text-slate-900 line-clamp-2 mb-1.5">{{ edital.objeto }}</h4>
+                  <p class="text-[11px] text-slate-500 mb-2">{{ edital.orgao }} • {{ edital.municipio }}</p>
+                  
+                  <div class="p-2 bg-slate-50 rounded-lg border border-slate-200 mb-3 text-[11px]">
+                    <span class="font-semibold text-slate-700">Anotação Interna:</span>
+                    <p class="text-slate-600 italic mt-0.5">{{ edital.anotacao || 'Sem anotações ainda...' }}</p>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                    <span class="font-bold text-slate-900 font-mono">{{ formatMoeda(edital.valorEstimado) }}</span>
+                    <div class="flex items-center gap-1">
+                      <button @click="mudarStatus(edital, 'Descartado (No-Go)')" class="text-[11px] text-rose-600 hover:bg-rose-50 px-2 py-1 rounded font-medium">No-Go 👎</button>
+                      <button @click="mudarStatus(edital, 'Qualificado (Go)')" class="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded font-medium">Aprovar Go</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna 3: Qualificado para Participar (Go) -->
+            <div class="bg-emerald-50/50 rounded-xl p-3 border border-emerald-200/80">
+              <div class="flex items-center justify-between mb-3 px-1">
+                <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Qualificados (Go)
+                </span>
+                <span class="text-xs bg-emerald-200 text-emerald-800 font-mono px-2 py-0.5 rounded-full font-bold">
+                  {{ editaisFiltrados.filter(e => e.status === 'Qualificado (Go)').length }}
+                </span>
+              </div>
+              <div class="space-y-3">
+                <div v-for="edital in editaisFiltrados.filter(e => e.status === 'Qualificado (Go)')" :key="edital.id" class="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm">
+                  <div class="flex items-center justify-between text-[11px] mb-2">
+                    <span class="font-mono text-slate-500 font-medium">{{ edital.numero }}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Prioridade {{ edital.prioridade }}/5</span>
+                  </div>
+                  <h4 class="text-xs font-bold text-slate-900 line-clamp-2 mb-1">{{ edital.objeto }}</h4>
+                  <p class="text-[11px] text-slate-500 mb-3">{{ edital.orgao }} — {{ edital.municipio }}</p>
+
+                  <div class="p-2 bg-emerald-50/80 rounded-lg border border-emerald-100 text-[11px] mb-3 space-y-1">
+                    <div class="flex justify-between">
+                      <span class="text-emerald-900 font-medium">Abertura:</span>
+                      <span class="font-mono font-bold text-emerald-950">{{ edital.dataAbertura }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-emerald-900 font-medium">Checklist Habilitação:</span>
+                      <span class="font-mono font-bold text-sky-700">{{ edital.checklistConcluido ? '100% Pronto' : '3/4 Concluído' }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <button @click="abrirChecklist(edital)" class="w-full text-center text-xs bg-sky-600 hover:bg-sky-700 text-white font-medium py-1.5 rounded-lg transition flex items-center justify-center gap-1">
+                      <span>Montar Dossiê / Checklist</span>
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna 4: Descartados (No-Go) -->
+            <div class="bg-slate-100/50 rounded-xl p-3 border border-slate-200/60 opacity-85">
+              <div class="flex items-center justify-between mb-3 px-1">
+                <span class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Descartados
+                </span>
+                <span class="text-xs bg-slate-200 text-slate-600 font-mono px-2 py-0.5 rounded-full font-bold">
+                  {{ editaisFiltrados.filter(e => e.status === 'Descartado (No-Go)').length }}
+                </span>
+              </div>
+              <div class="space-y-3">
+                <div v-for="edital in editaisFiltrados.filter(e => e.status === 'Descartado (No-Go)')" :key="edital.id" class="bg-white p-3 rounded-xl border border-slate-200 text-slate-500">
+                  <div class="flex items-center justify-between text-[11px] mb-1">
+                    <span class="font-mono text-xs line-through">{{ edital.numero }}</span>
+                    <button @click="mudarStatus(edital, 'Descoberto')" class="text-[10px] text-sky-600 hover:underline">Reabrir</button>
+                  </div>
+                  <h4 class="text-xs font-medium text-slate-700 line-clamp-1 mb-1">{{ edital.objeto }}</h4>
+                  <p class="text-[11px] text-rose-600 italic">Motivo: {{ edital.motivoDescarte || 'Inviabilidade de prazo/distância' }}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- MODO TABELA DETALHADA -->
+          <div v-else class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase">
+                <tr>
+                  <th class="p-3.5">Edital & Órgão</th>
+                  <th class="p-3.5">Segmento</th>
+                  <th class="p-3.5">Valor Estimado</th>
+                  <th class="p-3.5">Fontes Consolidadas</th>
+                  <th class="p-3.5">Abertura Sessão</th>
+                  <th class="p-3.5">Prioridade</th>
+                  <th class="p-3.5">Status</th>
+                  <th class="p-3.5 text-right">Ação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr v-for="e in editaisFiltrados" :key="e.id" class="hover:bg-slate-50 transition">
+                  <td class="p-3.5">
+                    <span class="font-mono font-bold text-slate-900 block">{{ e.numero }}</span>
+                    <span class="text-slate-500 text-[11px]">{{ e.orgao }} — {{ e.municipio }}/{{ e.estado }}</span>
+                    <p class="text-slate-700 font-medium mt-1 line-clamp-1">{{ e.objeto }}</p>
+                  </td>
+                  <td class="p-3.5">
+                    <span class="px-2 py-0.5 rounded text-[11px] bg-slate-100 text-slate-700 border">{{ e.segmento }}</span>
+                  </td>
+                  <td class="p-3.5 font-mono font-bold text-slate-900 whitespace-nowrap">
+                    {{ formatMoeda(e.valorEstimado) }}
+                  </td>
+                  <td class="p-3.5">
+                    <div class="flex items-center gap-1">
+                      <span v-for="f in e.fontes" :key="f" class="text-[10px] px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200 font-mono">{{ f }}</span>
+                      <span v-if="e.temDivergencia" class="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-bold">⚠️ Divergência</span>
+                    </div>
+                  </td>
+                  <td class="p-3.5 font-mono text-slate-700 whitespace-nowrap">
+                    {{ e.dataAbertura }}
+                  </td>
+                  <td class="p-3.5">
+                    <div class="flex items-center text-amber-400">
+                      <span v-for="star in e.prioridade" :key="star">★</span>
+                    </div>
+                  </td>
+                  <td class="p-3.5">
+                    <span :class="{
+                      'bg-blue-100 text-blue-800': e.status === 'Descoberto',
+                      'bg-amber-100 text-amber-800': e.status === 'Em Análise',
+                      'bg-emerald-100 text-emerald-800': e.status === 'Qualificado (Go)',
+                      'bg-slate-100 text-slate-600': e.status === 'Descartado (No-Go)'
+                    }" class="px-2.5 py-1 rounded-full text-[11px] font-semibold">
+                      {{ e.status }}
+                    </span>
+                  </td>
+                  <td class="p-3.5 text-right">
+                    <button @click="abrirChecklist(e)" class="text-xs text-sky-600 hover:text-sky-800 font-semibold">Detalhes</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA 2: LINHA DO TEMPO & VERIFICAÇÃO CRUZADA -->
+        <!-- ========================================================================= -->
+        <div v-if="currentTab === 'prazos'" class="space-y-6">
+          
+          <!-- Banner de Alerta Crítico de Divergência -->
+          <div class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-l-4 border-amber-500 p-5 rounded-r-xl bg-white shadow-sm flex items-start justify-between">
+            <div class="flex items-start gap-3">
+              <div class="p-2 bg-amber-100 rounded-lg text-amber-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Verificação Cruzada Multi-Portal em Funcionamento</h3>
+                <p class="text-xs text-slate-600 mt-1 max-w-3xl">
+                  O sistema encontrou <strong class="text-amber-700">1 edital com divergência de horário</strong> entre os portais oficiais. Essa checagem evita a perda de prazos provocada por falhas na atualização de dados de serviços terceiros.
+                </p>
+              </div>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-800 font-semibold px-3 py-1 rounded-full">1 Divergência Ativa</span>
+          </div>
+
+          <!-- Comparativo Cruzado Detalhado de Fontes -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+            <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+              Auditoria de Fontes & SLA de Sincronização por Edital
+            </h3>
+
+            <div class="space-y-4">
+              <!-- Item com Divergência -->
+              <div class="p-4 rounded-xl border-2 border-amber-300 bg-amber-50/30">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <span class="font-mono text-xs font-bold text-slate-800">Edital 042/2026</span>
+                    <span class="text-xs text-slate-500 ml-2">Prefeitura de Rio Verde / GO — Reforma Escola Monteiro Lobato</span>
+                  </div>
+                  <span class="text-xs bg-rose-500 text-white font-bold px-2.5 py-0.5 rounded-full animate-pulse">DIVERGÊNCIA IDENTIFICADA</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Fonte 1 -->
+                  <div class="bg-white p-3 rounded-lg border border-slate-200">
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                      <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> PNCP (Portal Nacional)
+                      </span>
+                      <span class="text-[11px] text-slate-400">Verificado há 12 min</span>
+                    </div>
+                    <p class="text-xs text-slate-600">Sessão Pública indicada:</p>
+                    <p class="text-sm font-mono font-bold text-slate-900">25/09/2026 às 09:00</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Impugnação até: 22/09/2026 às 18:00</p>
+                  </div>
+
+                  <!-- Fonte 2 -->
+                  <div class="bg-white p-3 rounded-lg border border-rose-200 bg-rose-50/20">
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                      <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Portal de Compras Públicas
+                      </span>
+                      <span class="text-[11px] text-slate-400">Verificado há 18 min</span>
+                    </div>
+                    <p class="text-xs text-slate-600">Sessão Pública indicada:</p>
+                    <p class="text-sm font-mono font-bold text-rose-700">25/09/2026 às 14:00 (Divergente!)</p>
+                    <p class="text-[11px] text-rose-600 font-medium mt-1">Alerta: Órgão publicou retificação nº 01 no portal municipal.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Item Sincronizado OK -->
+              <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60">
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <span class="font-mono text-xs font-bold text-slate-800">Edital 018/2026</span>
+                    <span class="text-xs text-slate-500 ml-2">Goinfra — Recapeamento GO-070</span>
+                  </div>
+                  <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Prazos 100% Coincidentes
+                  </span>
+                </div>
+                <p class="text-xs text-slate-600">Fontes verificadas: <strong>PNCP</strong> e <strong>BLL Compras</strong> • Ambas apontam abertura em 28/09/2026 às 10:00.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cronograma Visual de Prazos Próximos -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+            <h3 class="text-sm font-bold text-slate-900 mb-4">Linha do Tempo de Prazos Críticos (Próximos 7 Dias)</h3>
+            <div class="relative border-l-2 border-slate-200 ml-4 space-y-6">
+              
+              <div class="relative pl-6">
+                <span class="absolute -left-2 top-0.5 w-4 h-4 rounded-full bg-rose-500 ring-4 ring-rose-100"></span>
+                <span class="text-xs font-mono font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded">Faltam 24 horas</span>
+                <h4 class="text-xs font-bold text-slate-900 mt-1">Limite para Impugnação — Edital 018/2026 (GO-070)</h4>
+                <p class="text-xs text-slate-500">Data limite: 15/09/2026 às 18:00 • Engenheiro responsável deve submeter parecer de divergência no SINAPI.</p>
+              </div>
+
+              <div class="relative pl-6">
+                <span class="absolute -left-2 top-0.5 w-4 h-4 rounded-full bg-amber-500 ring-4 ring-amber-100"></span>
+                <span class="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Faltam 4 dias</span>
+                <h4 class="text-xs font-bold text-slate-900 mt-1">Vencimento da Certidão de Regularidade do FGTS (CRF)</h4>
+                <p class="text-xs text-slate-500">Documento da construtora precisa ser renovado junto à Caixa para o pregão de 28/09.</p>
+              </div>
+
+              <div class="relative pl-6">
+                <span class="absolute -left-2 top-0.5 w-4 h-4 rounded-full bg-sky-500 ring-4 ring-sky-100"></span>
+                <span class="text-xs font-mono font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded">Faltam 10 dias</span>
+                <h4 class="text-xs font-bold text-slate-900 mt-1">Abertura de Sessão Pública — Edital 042/2026 (Escola Monteiro Lobato)</h4>
+                <p class="text-xs text-slate-500">Envio de propostas e documentação habilitatória até as 08:30 do dia 25/09/2026.</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA 3: MÓDULO PROTOCOLO (CAT, CERTIDÕES & CHECKLIST) -->
+        <!-- ========================================================================= -->
+        <div v-if="currentTab === 'protocolo'" class="space-y-6">
+          
+          <!-- Sub-Navegação do Módulo Protocolo -->
+          <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
+            <button @click="subTabProtocolo = 'cats'" :class="subTabProtocolo === 'cats' ? 'bg-sky-600 text-white font-semibold' : 'bg-white text-slate-600 hover:bg-slate-100'" class="px-4 py-2 rounded-lg text-xs font-medium transition shadow-sm border border-slate-200">
+              Certidões de Acervo Técnico (CAT)
+            </button>
+            <button @click="subTabProtocolo = 'certidoes'" :class="subTabProtocolo === 'certidoes' ? 'bg-sky-600 text-white font-semibold' : 'bg-white text-slate-600 hover:bg-slate-100'" class="px-4 py-2 rounded-lg text-xs font-medium transition shadow-sm border border-slate-200 flex items-center gap-1.5">
+              <span>Licenças & Certidões Negativas</span>
+              <span class="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">1</span>
+            </button>
+            <button @click="subTabProtocolo = 'checklist'" :class="subTabProtocolo === 'checklist' ? 'bg-sky-600 text-white font-semibold' : 'bg-white text-slate-600 hover:bg-slate-100'" class="px-4 py-2 rounded-lg text-xs font-medium transition shadow-sm border border-slate-200">
+              Checklist & Montagem de Dossiê por Edital
+            </button>
+          </div>
+
+          <!-- SUB-ABA 1: GESTÃO DE CATs (ENTIDADE DE PRIMEIRA CLASSE) -->
+          <div v-if="subTabProtocolo === 'cats'" class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Banco Centralizado de Acervo Técnico (CAT)</h3>
+                <p class="text-xs text-slate-500">Mapeamento de obras executadas, quantitativos e atestados registrados no CREA/CAU.</p>
+              </div>
+              <button @click="abrirModalNovaCAT" class="text-xs bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Cadastrar Nova CAT
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div v-for="cat in listaCATs" :key="cat.numero" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-sky-300 transition">
+                <div class="flex items-center justify-between text-xs mb-2">
+                  <span class="font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">{{ cat.numero }}</span>
+                  <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">Validada no CREA</span>
+                </div>
+                <h4 class="text-xs font-bold text-slate-900 mt-2 line-clamp-2">{{ cat.objeto }}</h4>
+                
+                <div class="mt-3 pt-3 border-t border-slate-100 space-y-1.5 text-xs">
+                  <div class="flex justify-between text-slate-600">
+                    <span>Responsável Técnico:</span>
+                    <strong class="text-slate-800">{{ cat.engenheiro }}</strong>
+                  </div>
+                  <div class="flex justify-between text-slate-600">
+                    <span>Registro Profissional:</span>
+                    <span class="font-mono text-slate-700">{{ cat.crea }}</span>
+                  </div>
+                  <div class="flex justify-between text-slate-600">
+                    <span>Quantitativo Acervado:</span>
+                    <strong class="font-mono text-sky-700">{{ cat.quantitativo }} {{ cat.unidade }}</strong>
+                  </div>
+                  <div class="flex justify-between text-slate-600">
+                    <span>Data de Conclusão:</span>
+                    <span class="text-slate-700">{{ cat.dataConclusao }}</span>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span class="text-slate-400 text-[11px] flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
+                    PDF Original Anexado
+                  </span>
+                  <button @click="simularDownload(cat.numero)" class="text-sky-600 hover:text-sky-800 font-semibold text-[11px]">Visualizar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-ABA 2: CERTIDÕES E LICENÇAS (COM ALERTAS DE VENCIMENTO) -->
+          <div v-if="subTabProtocolo === 'certidoes'" class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Monitoramento Contínuo de Certidões e Alvarás</h3>
+                <p class="text-xs text-slate-500">Alertas automáticos de 30, 15 e 5 dias antes de expirar para evitar inabilitação de documentação jurídica e fiscal.</p>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase">
+                  <tr>
+                    <th class="p-3.5">Documento Habilitatório</th>
+                    <th class="p-3.5">Órgão Expedidor</th>
+                    <th class="p-3.5">Data de Emissão</th>
+                    <th class="p-3.5">Data de Vencimento</th>
+                    <th class="p-3.5">Status de Validade</th>
+                    <th class="p-3.5 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="doc in listaCertidoes" :key="doc.nome" class="hover:bg-slate-50 transition">
+                    <td class="p-3.5 font-bold text-slate-800">
+                      {{ doc.nome }}
+                      <span class="block text-[11px] font-normal text-slate-500 font-mono">{{ doc.numero }}</span>
+                    </td>
+                    <td class="p-3.5 text-slate-600">{{ doc.orgao }}</td>
+                    <td class="p-3.5 text-slate-600 font-mono">{{ doc.emissao }}</td>
+                    <td class="p-3.5 font-mono font-bold" :class="doc.diasRestantes <= 5 ? 'text-rose-600' : (doc.diasRestantes <= 30 ? 'text-amber-600' : 'text-slate-800')">
+                      {{ doc.vencimento }}
+                      <span class="block text-[10px] font-normal" :class="doc.diasRestantes <= 5 ? 'text-rose-600 font-bold' : 'text-slate-500'">
+                        {{ doc.diasRestantes > 0 ? `(restam ${doc.diasRestantes} dias)` : 'Expirada!' }}
+                      </span>
+                    </td>
+                    <td class="p-3.5">
+                      <span v-if="doc.diasRestantes <= 5" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1 w-max">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span> Urgente (Vence em {{ doc.diasRestantes }}d)
+                      </span>
+                      <span v-else-if="doc.diasRestantes <= 30" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-200 w-max block">
+                        Atenção (Vence em {{ doc.diasRestantes }}d)
+                      </span>
+                      <span v-else class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 w-max block">
+                        Válida e Regular
+                      </span>
+                    </td>
+                    <td class="p-3.5 text-right">
+                      <button @click="renovarDocumento(doc)" class="text-sky-600 hover:text-sky-800 font-semibold text-xs">Atualizar PDF</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUB-ABA 3: CHECKLIST DE HABILITAÇÃO & MONTAGEM DO DOSSIÊ -->
+          <div v-if="subTabProtocolo === 'checklist'" class="space-y-4">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Selecione o Edital para o Checklist:</label>
+                <select v-model="editalChecklistId" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 font-semibold text-slate-800">
+                  <option value="1">Edital 018/2026 — Goinfra (GO-070)</option>
+                  <option value="2">Edital 042/2026 — Pref. Rio Verde (Escola)</option>
+                </select>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <div class="text-right">
+                  <p class="text-xs text-slate-500">Progresso do Dossiê:</p>
+                  <p class="text-sm font-bold text-emerald-600 font-mono">4 de 4 Itens Vinculados (100%)</p>
+                </div>
+                <button @click="abrirModalDossie" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/20 transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                  Gerar Dossiê de Submissão (.ZIP / PDF Único)
+                </button>
+              </div>
+            </div>
+
+            <!-- Tabela de Requisitos do Edital vs Documento Vinculado -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase">
+                  <tr>
+                    <th class="p-3.5">Item do Edital</th>
+                    <th class="p-3.5">Exigência Formal</th>
+                    <th class="p-3.5">Documento Vinculado da Empresa</th>
+                    <th class="p-3.5">Conformidade</th>
+                    <th class="p-3.5 text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 font-bold text-slate-800">Item 7.1 — Habilitação Técnica</td>
+                    <td class="p-3.5 text-slate-600">CAT de pavimentação asfáltica (mín. 20.000 m²)</td>
+                    <td class="p-3.5 font-mono text-sky-700 font-semibold">
+                      CAT nº 14209/CREA-GO (45.000 m² executados)
+                    </td>
+                    <td class="p-3.5">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Supera Exigência (225%)</span>
+                    </td>
+                    <td class="p-3.5 text-right">
+                      <span class="text-emerald-600 font-bold">✓ Vinculado</span>
+                    </td>
+                  </tr>
+
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 font-bold text-slate-800">Item 7.2 — Regularidade Fiscal</td>
+                    <td class="p-3.5 text-slate-600">Certidão Negativa Conjunta Federal (Tributos e Dívida Ativa)</td>
+                    <td class="p-3.5 font-mono text-slate-700">CND Receita Federal nº 88192-A</td>
+                    <td class="p-3.5">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Válida</span>
+                    </td>
+                    <td class="p-3.5 text-right">
+                      <span class="text-emerald-600 font-bold">✓ Vinculado</span>
+                    </td>
+                  </tr>
+
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 font-bold text-slate-800">Item 7.3 — Regularidade Trabalhista</td>
+                    <td class="p-3.5 text-slate-600">Certidão de Regularidade do FGTS (CRF)</td>
+                    <td class="p-3.5 font-mono text-slate-700">CRF nº 20260901-44</td>
+                    <td class="p-3.5">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Alerta de Renovação (4 dias)</span>
+                    </td>
+                    <td class="p-3.5 text-right">
+                      <span class="text-amber-600 font-bold">⚠️ Renovar</span>
+                    </td>
+                  </tr>
+
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 font-bold text-slate-800">Item 7.4 — Qualificação Jurídica</td>
+                    <td class="p-3.5 text-slate-600">Contrato Social Consolidado + Certidão Simplificada JUCEG</td>
+                    <td class="p-3.5 font-mono text-slate-700">Alteração Contratual nº 07 / JUCEG-GO</td>
+                    <td class="p-3.5">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Conforme</span>
+                    </td>
+                    <td class="p-3.5 text-right">
+                      <span class="text-emerald-600 font-bold">✓ Vinculado</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA 4: PAINEL DE VIABILIDADE FINANCEIRA (SINAPI / CO-INFRA & BDI) -->
+        <!-- ========================================================================= -->
+        <div v-if="currentTab === 'viabilidade'" class="space-y-6">
+          
+          <!-- Introdução de Apoio à Decisão -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Apoio Crítico à Análise Orçamentária</h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                Comparativo item a item entre a planilha fornecida no Edital e as tabelas oficiais <strong>SINAPI (Goiás - Jul/2026)</strong> e <strong>CO-INFRA</strong>.
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
+                Edital em Foco: <strong>018/2026 — Goinfra (GO-070)</strong>
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Tabela Comparativa de Preços Unitários (2 Colunas no Grid) -->
+            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Itens da Planilha de Custos vs Tabela Oficial</h4>
+                <span class="text-[11px] text-slate-500">Tabela Ref: SINAPI-GO / Goinfra</span>
+              </div>
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                  <tr>
+                    <th class="p-3">Serviço / Composição</th>
+                    <th class="p-3">Unid.</th>
+                    <th class="p-3">Qtd.</th>
+                    <th class="p-3">Preço Edital</th>
+                    <th class="p-3">Preço SINAPI</th>
+                    <th class="p-3">Desvio %</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="item in itensOrcamento" :key="item.codigo" class="hover:bg-slate-50">
+                    <td class="p-3">
+                      <span class="font-mono text-[11px] text-slate-400 block">{{ item.codigo }}</span>
+                      <strong class="text-slate-800">{{ item.descricao }}</strong>
+                    </td>
+                    <td class="p-3 font-mono text-slate-600">{{ item.unidade }}</td>
+                    <td class="p-3 font-mono text-slate-700">{{ item.quantidade.toLocaleString('pt-BR') }}</td>
+                    <td class="p-3 font-mono font-bold text-slate-900">{{ formatMoeda(item.precoEdital) }}</td>
+                    <td class="p-3 font-mono text-slate-600">{{ formatMoeda(item.precoOficial) }}</td>
+                    <td class="p-3 font-mono font-bold">
+                      <span v-if="item.desvioPercentual > 5" class="px-2 py-0.5 rounded text-[11px] bg-emerald-100 text-emerald-800">
+                        +{{ item.desvioPercentual }}% (Margem Folgada)
+                      </span>
+                      <span v-else-if="item.desvioPercentual < -5" class="px-2 py-0.5 rounded text-[11px] bg-rose-100 text-rose-800">
+                        {{ item.desvioPercentual }}% (Abaixo SINAPI!)
+                      </span>
+                      <span v-else class="px-2 py-0.5 rounded text-[11px] bg-slate-100 text-slate-700">
+                        {{ item.desvioPercentual }}% (Alinhado)
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="p-3 bg-amber-50/50 border-t border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+                <svg class="w-4 h-4 shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span><strong>Atenção do Engenheiro:</strong> O item de Alvenaria apresenta preço 9.5% abaixo da tabela SINAPI oficial. Recomenda-se renegociação de suprimentos ou avaliar impugnação por sobrepreço/inexequibilidade.</span>
+              </div>
+            </div>
+
+            <!-- Simulador de BDI e Margem da Construtora -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-5">
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Simulador de BDI & Margem</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Ajuste o BDI (Benefícios e Despesas Indiretas) pretendido para a proposta da construtora.</p>
+              </div>
+
+              <!-- Slider do BDI -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-semibold text-slate-700">Taxa de BDI Proposta:</span>
+                  <span class="font-mono font-extrabold text-sky-700 text-base">{{ taxaBdi }}%</span>
+                </div>
+                <input type="range" v-model.number="taxaBdi" min="15" max="32" step="0.5" class="w-full accent-sky-600 cursor-pointer">
+                <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>Mínimo 15%</span>
+                  <span>Referência TCU (24,5%)</span>
+                  <span>Máximo 32%</span>
+                </div>
+              </div>
+
+              <!-- Resumo dos Valores Simulados -->
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 text-xs">
+                <div class="flex justify-between text-slate-600">
+                  <span>Custo Direto Estimado:</span>
+                  <span class="font-mono font-bold text-slate-800">{{ formatMoeda(custoDiretoTotal) }}</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                  <span>Valor do BDI Calculado:</span>
+                  <span class="font-mono font-bold text-sky-700">{{ formatMoeda(valorBdiCalculado) }}</span>
+                </div>
+                <div class="pt-2 border-t border-slate-200 flex justify-between font-bold text-sm text-slate-900">
+                  <span>Preço Total da Proposta:</span>
+                  <span class="font-mono text-sky-700">{{ formatMoeda(precoPropostaFinal) }}</span>
+                </div>
+                <div class="flex justify-between text-[11px] text-slate-500">
+                  <span>Preço Teto do Edital:</span>
+                  <span class="font-mono">{{ formatMoeda(4250000) }}</span>
+                </div>
+              </div>
+
+              <!-- Análise de Competitividade -->
+              <div :class="precoPropostaFinal <= 4250000 ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900'" class="p-3 rounded-lg border text-xs">
+                <p class="font-bold flex items-center gap-1.5">
+                  <span v-if="precoPropostaFinal <= 4250000">✓ Proposta Dentro do Teto do Edital</span>
+                  <span v-else>⚠️ Proposta Ultrapassa o Teto Máximo</span>
+                </p>
+                <p class="text-[11px] mt-1">
+                  <span v-if="precoPropostaFinal <= 4250000">
+                    Margem líquida estimada de <strong>{{ ((taxaBdi - 15) * 0.65).toFixed(1) }}%</strong> com desconto competitivo de <strong>{{ ((1 - (precoPropostaFinal / 4250000)) * 100).toFixed(1) }}%</strong> frente ao teto da Goinfra.
+                  </span>
+                  <span v-else>
+                    Reduza a taxa de BDI para garantir a aceitabilidade da proposta de preços.
+                  </span>
+                </p>
+              </div>
+
+              <button @click="salvarSimulacaoBdi" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-xs font-semibold transition">
+                Fixar Parâmetros de BDI no Edital
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- MODAL DE CADASTRO DE CAT -->
+    <div v-if="modalCAT" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 text-xs">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <h3 class="text-sm font-bold text-slate-900">Cadastrar Nova Certidão de Acervo Técnico (CAT)</h3>
+          <button @click="modalCAT = false" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+
+        <form @submit.prevent="salvarNovaCAT" class="space-y-3 mt-4">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Número da CAT / Atestado</label>
+            <input v-model="formCAT.numero" required type="text" placeholder="Ex: 19844/CREA-GO" class="w-full p-2 border border-slate-300 rounded-lg text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Engenheiro Responsável Técnico</label>
+            <input v-model="formCAT.engenheiro" required type="text" placeholder="Nome Completo do Engenheiro" class="w-full p-2 border border-slate-300 rounded-lg text-xs">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Registro CREA/CAU</label>
+              <input v-model="formCAT.crea" required type="text" placeholder="Ex: 18239/D-GO" class="w-full p-2 border border-slate-300 rounded-lg text-xs">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Quantitativo Principal</label>
+              <input v-model="formCAT.quantitativo" required type="text" placeholder="Ex: 15.000 m²" class="w-full p-2 border border-slate-300 rounded-lg text-xs">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Objeto da Obra Executada</label>
+            <textarea v-model="formCAT.objeto" required rows="2" placeholder="Descrição resumida da obra acervada..." class="w-full p-2 border border-slate-300 rounded-lg text-xs"></textarea>
+          </div>
+          <div class="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-lg text-center">
+            <p class="text-slate-600 font-medium">Anexar Arquivo PDF da CAT (comprovante CREA)</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Armazenamento com criptografia AES-256 no MinIO / S3</p>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+            <button type="button" @click="modalCAT = false" class="px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+            <button type="submit" class="px-4 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg">Salvar Acervo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL DE EXPORTAÇÃO DE DOSSIÊ -->
+    <div v-if="modalDossie" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-xs text-center space-y-4">
+        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">Dossiê de Habilitação Montado com Sucesso!</h3>
+          <p class="text-xs text-slate-500 mt-1">Todos os documentos do Edital 018/2026 foram consolidados e indexados.</p>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl text-left border border-slate-200 font-mono text-[11px] space-y-1 text-slate-700">
+          <div>📄 01_CAT_14209_CREA-GO_Asfalto.pdf</div>
+          <div>📄 02_CND_Receita_Federal.pdf</div>
+          <div>📄 03_CRF_FGTS_Regularidade.pdf</div>
+          <div>📄 04_Contrato_Social_Consolidado.pdf</div>
+          <div>📋 Indice_Geral_de_Conformidade.pdf</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button @click="modalDossie = false" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100">Fechar</button>
+          <button @click="baixarArquivoMock" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md">Baixar Pacote (.ZIP)</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const currentTab = ref('triagem');
+        const subTabProtocolo = ref('cats');
+        const modoVisualizacao = ref('kanban');
+        const showNotificacoes = ref(false);
+        const modalCAT = ref(false);
+        const modalDossie = ref(false);
+        const editalChecklistId = ref('1');
+
+        const filtroTexto = ref('');
+        const filtroSegmento = ref('');
+        const filtroMunicipio = ref('');
+
+        const taxaBdi = ref(24.5);
+        const custoDiretoTotal = ref(3413654.62);
+
+        const valorBdiCalculado = computed(() => {
+          return custoDiretoTotal.value * (taxaBdi.value / 100);
+        });
+
+        const precoPropostaFinal = computed(() => {
+          return custoDiretoTotal.value + valorBdiCalculado.value;
+        });
+
+        const temDivergencia = ref(true);
+
+        const editais = ref([
+          {
+            id: 1,
+            numero: 'Edital 018/2026',
+            orgao: 'Goinfra / Agetop',
+            municipio: 'Goiânia',
+            estado: 'GO',
+            segmento: 'Pavimentação / Rodoviária',
+            objeto: 'Recapeamento asfáltico em CBUQ e recuperação de drenagem profunda no trecho da Rodovia GO-070.',
+            valorEstimado: 4250000.00,
+            dataAbertura: '28/09/2026 10:00',
+            prioridade: 5,
+            status: 'Qualificado (Go)',
+            fontes: ['PNCP', 'BLL Compras'],
+            temDivergencia: false,
+            anotacao: 'Excelente margem no CBUQ; CAT 14209 cobre 225% da exigência.',
+            checklistConcluido: true
+          },
+          {
+            id: 2,
+            numero: 'Edital 042/2026',
+            orgao: 'Prefeitura de Rio Verde',
+            municipio: 'Rio Verde',
+            estado: 'GO',
+            segmento: 'Reforma & Edificações',
+            objeto: 'Reforma geral, ampliação de salas modulares e quadra poliesportiva da Escola Municipal Monteiro Lobato.',
+            valorEstimado: 1180000.00,
+            dataAbertura: '25/09/2026 09:00',
+            prioridade: 4,
+            status: 'Em Análise',
+            fontes: ['PNCP', 'Portal Compras'],
+            temDivergencia: true,
+            anotacao: 'Atenção ao horário de abertura divergente e preço da alvenaria 9.5% abaixo do SINAPI.',
+            checklistConcluido: false
+          },
+          {
+            id: 3,
+            numero: 'Edital 009/2026',
+            orgao: 'Prefeitura de Anápolis',
+            municipio: 'Anápolis',
+            estado: 'GO',
+            segmento: 'Saúde / Hospitais',
+            objeto: 'Construção de Unidade Básica de Saúde (UBS Porte II) no Bairro Jundiaí com acabamento hospitalar.',
+            valorEstimado: 2450000.00,
+            dataAbertura: '05/10/2026 09:30',
+            prioridade: 3,
+            status: 'Descoberto',
+            fontes: ['PNCP'],
+            temDivergencia: false,
+            anotacao: '',
+            checklistConcluido: false
+          },
+          {
+            id: 4,
+            numero: 'Edital 077/2026',
+            orgao: 'Prefeitura de Goiânia',
+            municipio: 'Goiânia',
+            estado: 'GO',
+            segmento: 'Espaço Urbano / Praças',
+            objeto: 'Revitalização paisagística, iluminação em LED e instalação de pista de caminhada no Setor Bueno.',
+            valorEstimado: 890000.00,
+            dataAbertura: '02/10/2026 14:00',
+            prioridade: 2,
+            status: 'Descartado (No-Go)',
+            fontes: ['PNCP', 'BNC'],
+            temDivergencia: false,
+            motivoDescarte: 'Margem estimada inferior a 5% e prazo de execução inviável.',
+            checklistConcluido: false
+          }
+        ]);
+
+        const listaCATs = ref([
+          {
+            numero: 'CAT 14209/CREA-GO',
+            objeto: 'Execução de Pavimentação Asfáltica com CBUQ e Terraplenagem em Rodovia Estadual.',
+            engenheiro: 'Eng. Marcelo Rocha',
+            crea: '14.882/D-GO',
+            quantitativo: '45.000',
+            unidade: 'm²',
+            dataConclusao: '12/11/2025'
+          },
+          {
+            numero: 'CAT 08912/CREA-GO',
+            objeto: 'Construção de Edificação Institucional em Estrutura de Concreto Armado e Alvenaria.',
+            engenheiro: 'Eng. Marcelo Rocha',
+            crea: '14.882/D-GO',
+            quantitativo: '3.200',
+            unidade: 'm²',
+            dataConclusao: '18/06/2024'
+          },
+          {
+            numero: 'CAT 20334/CREA-GO',
+            objeto: 'Reforma e Adequação Sanitária de Unidade Básica de Saúde / Ambulatório.',
+            engenheiro: 'Eng. Mariana Ramos',
+            crea: '22.104/D-GO',
+            quantitativo: '1.450',
+            unidade: 'm²',
+            dataConclusao: '05/03/2025'
+          }
+        ]);
+
+        const listaCertidoes = ref([
+          {
+            nome: 'Certidão Negativa de Débitos Federais (CND)',
+            numero: 'PGFN nº 88192-A',
+            orgao: 'Receita Federal / PGFN',
+            emissao: '10/04/2026',
+            vencimento: '22/09/2026',
+            diasRestantes: 8
+          },
+          {
+            nome: 'Certidão de Débitos Tributários Estaduais',
+            numero: 'SEFAZ-GO nº 3310-2026',
+            orgao: 'SEFAZ - Goiás',
+            emissao: '01/07/2026',
+            vencimento: '28/11/2026',
+            diasRestantes: 75
+          },
+          {
+            nome: 'Certidão Negativa de Débitos Municipais',
+            numero: 'PREF-GYN nº 9012',
+            orgao: 'Prefeitura de Goiânia',
+            emissao: '15/06/2026',
+            vencimento: '02/01/2027',
+            diasRestantes: 110
+          },
+          {
+            nome: 'Certificado de Regularidade do FGTS (CRF)',
+            numero: 'CRF nº 20260901-44',
+            orgao: 'Caixa Econômica Federal',
+            emissao: '19/08/2026',
+            vencimento: '18/09/2026',
+            diasRestantes: 4
+          },
+          {
+            nome: 'Licença Ambiental de Operação (LAO)',
+            numero: 'SEMAD nº 5521/2025',
+            orgao: 'SEMAD - Goiás',
+            emissao: '10/01/2025',
+            vencimento: '15/03/2027',
+            diasRestantes: 182
+          }
+        ]);
+
+        const itensOrcamento = ref([
+          {
+            codigo: 'SINAPI 94970',
+            descricao: 'Concreto usinado bombeável Fck 25 MPa, lançamento e adensamento',
+            unidade: 'm³',
+            quantidade: 420,
+            precoEdital: 480.00,
+            precoOficial: 435.00,
+            desvioPercentual: 10.3
+          },
+          {
+            codigo: 'SINAPI 89985',
+            descricao: 'Alvenaria de vedação com bloco cerâmico furado e=14cm',
+            unidade: 'm²',
+            quantidade: 1850,
+            precoEdital: 62.00,
+            precoOficial: 68.50,
+            desvioPercentual: -9.5
+          },
+          {
+            codigo: 'GOINFRA 4120',
+            descricao: 'Concreto Betuminoso Usinado a Quente (CBUQ) com binder e capa',
+            unidade: 'ton',
+            quantidade: 3500,
+            precoEdital: 74.00,
+            precoOficial: 71.20,
+            desvioPercentual: 3.9
+          },
+          {
+            codigo: 'SINAPI 88489',
+            descricao: 'Aplicação manual de pintura acrílica em paredes internas, 2 demãos',
+            unidade: 'm²',
+            quantidade: 2400,
+            precoEdital: 18.50,
+            precoOficial: 19.80,
+            desvioPercentual: -6.5
+          }
+        ]);
+
+        const formCAT = ref({
+          numero: '',
+          engenheiro: '',
+          crea: '',
+          quantitativo: '',
+          objeto: ''
+        });
+
+        const editaisFiltrados = computed(() => {
+          return editais.value.filter(e => {
+            const matchTexto = !filtroTexto.value || 
+              e.objeto.toLowerCase().includes(filtroTexto.value.toLowerCase()) ||
+              e.numero.toLowerCase().includes(filtroTexto.value.toLowerCase()) ||
+              e.orgao.toLowerCase().includes(filtroTexto.value.toLowerCase());
+            
+            const matchSegmento = !filtroSegmento.value || e.segmento === filtroSegmento.value;
+            const matchMunicipio = !filtroMunicipio.value || e.municipio === filtroMunicipio.value;
+
+            return matchTexto && matchSegmento && matchMunicipio;
+          });
+        });
+
+        function formatMoeda(val) {
+          return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+        }
+
+        function mudarStatus(edital, novoStatus) {
+          edital.status = novoStatus;
+        }
+
+        function abrirChecklist(edital) {
+          currentTab.value = 'protocolo';
+          subTabProtocolo.value = 'checklist';
+        }
+
+        function abrirModalNovaCAT() {
+          formCAT.value = { numero: '', engenheiro: '', crea: '', quantitativo: '', objeto: '' };
+          modalCAT.value = true;
+        }
+
+        function salvarNovaCAT() {
+          listaCATs.value.unshift({
+            numero: formCAT.value.numero,
+            objeto: formCAT.value.objeto,
+            engenheiro: formCAT.value.engenheiro,
+            crea: formCAT.value.crea,
+            quantitativo: formCAT.value.quantitativo,
+            unidade: 'm²',
+            dataConclusao: 'Recém-Cadastrada'
+          });
+          modalCAT.value = false;
+          alert('CAT cadastrada com sucesso e indexada para atendimento aos checklists!');
+        }
+
+        function abrirModalDossie() {
+          modalDossie.value = true;
+        }
+
+        function baixarArquivoMock() {
+          modalDossie.value = false;
+          alert('Download do Dossiê Consolidado (ZIP com 5 documentos e índice de conformidade) iniciado com sucesso!');
+        }
+
+        function simularNovaIngestao() {
+          alert('Sincronização em segundo plano disparada!\nConsultando API PNCP e scrapers dos portais BLL e BNC...\nNenhum novo edital retificado nos últimos minutos.');
+        }
+
+        function renovarDocumento(doc) {
+          const novoVencimento = prompt(`Informe a nova data de vencimento para ${doc.nome}:`, '30/12/2026');
+          if (novoVencimento) {
+            doc.vencimento = novoVencimento;
+            doc.diasRestantes = 120;
+            alert(`Documento ${doc.nome} atualizado com novo vencimento!`);
+          }
+        }
+
+        function salvarSimulacaoBdi() {
+          alert(`Parâmetros de BDI (${taxaBdi.value}%) salvos para o Edital 018/2026!\nPreço Proposto: ${formatMoeda(precoPropostaFinal.value)}`);
+        }
+
+        function simularDownload(num) {
+          alert(`Visualizando documento comprobatório anexado à ${num} com validação CREA-GO.`);
+        }
+
+        return {
+          currentTab,
+          subTabProtocolo,
+          modoVisualizacao,
+          showNotificacoes,
+          modalCAT,
+          modalDossie,
+          editalChecklistId,
+          filtroTexto,
+          filtroSegmento,
+          filtroMunicipio,
+          taxaBdi,
+          custoDiretoTotal,
+          valorBdiCalculado,
+          precoPropostaFinal,
+          temDivergencia,
+          editais,
+          listaCATs,
+          listaCertidoes,
+          itensOrcamento,
+          formCAT,
+          editaisFiltrados,
+          formatMoeda,
+          mudarStatus,
+          abrirChecklist,
+          abrirModalNovaCAT,
+          salvarNovaCAT,
+          abrirModalDossie,
+          baixarArquivoMock,
+          simularNovaIngestao,
+          renovarDocumento,
+          salvarSimulacaoBdi,
+          simularDownload
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
